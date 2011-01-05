@@ -1,0 +1,3 @@
+        <li class="{{ task.id }}">
+            <span{% if task.completed %} class="completed"{% endif %}>{{ task.name }}</span> {% if task.completed %}{% else %}<a href="taskit/complete/{{ task.id }}" class="{{ task.id }}">Complete it</a>{% endif %} <a href="taskit/delete/{{ task.id }}" class="{{ task.id }}">Delete it</a>
+        </li>

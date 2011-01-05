@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Task It</title>
+<meta name="description" content="{{ meta_description }}" />
+<meta name="keywords" content="{{ meta_keywords }}" />
+<meta name="author" content="{{ meta_author }}" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="robots" value="index,follow" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="/taskit/css/taskit.css" />
+<link rel="stylesheet" type="text/css" href="/css/ui-lightness/jquery-ui-1.8.7.custom.css" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="/taskit/js/taskit.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.8.7.custom.min.js"></script>
+{% block extra_headers %}{% endblock %}
+</head>
+<body>
+<div id="ajax-message">
+<p>loading...</p>
+</div>
+<div id="welcome-statement">
+{% if nickname %}
+<p>Hello, {{ nickname }}. <a href="{{ logout_url }}">Sign out</a>.</p>
+{% endif %}
+{% if login_url %}
+<p><a href="{{ login_url }}">Sign in or register</a>.</p>
+{% endif %}
+</div>
+
+<div id="add-task">
+<fieldset>
+<form action="" method="post" id="task-form">
+<input type="text" name="task" id="task-input" />
+<input id="task-button" type="submit" value="Task It" />
+<p><a href="" id="advanced-task-link">>Advanced Task</a></p>
+<div id="advanced-task-form">
+    <label for="notes" class="notes">Notes:</label>
+    <textarea name="notes"></textarea>
+
+    <label for="complete-by" class="complete-by">Complete by:</label>
+    <input type="text" name="complete-by" id="complete-by-input" />
+    <label for="priority" class="priority">Priority:</label>
+    <select name="priority">
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+    </select>
+    
+</div>
+</form>
+</fieldset>
+</div>
+
+<ul id="sort-links">
+<li>SORT BY:</li>
+<li><a href="" class="sort-name">name</a></li>
+<li><a href="" class="sort-date">date entered</a></li>
+<li><a href="" class="sort-completeby-date">complete by date</a></li>
+</ul>
+
+<div id="your-tasks">
+{% if nickname %}
+    {% include "task-list.html" %}
+{% else %}
+    <p>Must be logged in to access tasks.</p>
+{% endif %}
+</div>
+
+</body>
+</html>

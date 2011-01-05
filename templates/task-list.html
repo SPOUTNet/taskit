@@ -1,0 +1,9 @@
+{% if tasks %}
+    <ul id="task-list">
+    {% for task in tasks %}
+        <li class="{{ task.id }}"><span{% if task.completed %} class="completed"{% endif %}>{{ task.name }}</span> {% if task.completed %}{% else %}<a href="taskit/complete/{{ task.id }}" class="{{ task.id }}">Complete it</a>{% endif %} <a href="taskit/delete/{{ task.id }}" class="{{ task.id }}">Delete it</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You have no tasks to complete.</p>
+{% endif %}

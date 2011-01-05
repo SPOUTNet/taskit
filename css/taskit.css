@@ -1,0 +1,109 @@
+body {
+    text-align: center;
+    font-size: 62.5%;
+    font-family: Verdana, Sans-serif;
+    color: #444;
+}
+
+#welcome-statement {
+    font-size: 2em;
+}
+
+#task-button {
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    width: 30%;
+    margin-left: 2%;
+    float: left;
+}
+
+#task-input {
+    width: 67%;
+    float: left;
+    font-size: 1em;
+}
+
+#your-tasks {
+    margin-top: 10px;
+    clear: both;
+    font-size: 2em;
+}
+
+#add-task {
+    margin-top: 10px;
+}
+
+.completed {
+    text-decoration: line-through;
+}
+
+#advanced-task-form {
+    display: none;
+    clear: both;
+    font-size: .7em;
+    margin: 1em 0 1em 0;
+}
+
+#advanced-task-form label {
+    clear: both;
+    float: left;
+    margin-top: 10px;
+    width: 30%;
+    padding-right: 10px;
+    text-align: right;
+}
+
+#advanced-task-form textarea,
+#advanced-task-form input,
+#advanced-task-form select {
+    margin-top: 10px;
+    float: left;
+}
+
+#advanced-task-form textarea {
+    width: 200px;
+    height: 100px;
+}
+
+#advanced-task-link {
+    font-size: .5em;
+    clear: both;
+}
+
+fieldset {
+    width: 100%;
+    text-align: center;
+}
+
+form {
+    width: 600px;
+    margin: 0 auto;
+    font-size: 2em;
+}
+
+#ajax-message {
+}
+
+#ajax-message p {
+    background-color: #CCC;
+    font-size: 1.5em;
+    visibility: hidden;
+    margin: 0 auto;
+    padding: 0;
+    display: table;
+}
+
+#sort-links {
+    padding-top:10px;
+}
+
+#sort-links li {
+    display: inline;
+    
+}
+
+#sort-links li a {
+    background-color: white;
+}
