@@ -11,7 +11,10 @@ TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), 'templates/')
 TASK_LIMIT = 10
 MAIN_URL = '/taskit'
 
+
 class Task(db.Model):
+    PRIORITY_CHOICES = ["high","medium","low"]
+    
     name = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     complete_by = db.DateProperty()
@@ -19,13 +22,35 @@ class Task(db.Model):
     completed_date = db.DateTimeProperty()
     notes = db.StringProperty()
     user = db.UserProperty(auto_current_user_add=True)
+    priority = db.StringProperty(choices = PRIORITY_CHOICES)
     private = db.BooleanProperty(default=False)
     
 class Preferences(db.Model):
     user = db.UserProperty(required=True)
     expiration = db.DateProperty()
-    date_joined = db.DateProperty()
+    date_joined = db.DateProperty(auto_now_add=True)
 
+#----------------Utility Functions-------------------------------
+def taskQuery(order_by = [], filters = [], limit = 10):
+    '''
+    Queries the Task model and returns a rendered task-list.
+    
+    Takes a list of strings to order query and a list of tuples to
+    filter query.
+    '''
+    user = users.get_current_user()
+    query = Task.all()
+    query.filter('user =', user)    
+    for order in order_by: query.order(order)
+    for filter in filters: query.filter(filter[0], filter[1])
+    tasks = query.fetch(limit)
+    for task in tasks:
+        task.id = task.key()
+    template_path = TEMPLATES_PATH + 'task-list.html'
+    output = template.render(template_path, {'tasks': tasks})
+    return output
+#----------------------------------------------------------------
+    
 class MainHandler(webapp.RequestHandler):
 
     def get(self):
@@ -101,29 +126,11 @@ class AjaxHandler(webapp.RequestHandler):
         elif command == 'sort-priority':
             pass
         elif command == 'sort-completeby-date':
-            query.order('complete_by')
-            tasks = query.fetch(10)
-            for task in tasks:
-                task.id = task.key()
-            template_path = TEMPLATES_PATH + 'task-list.html'
-            output = template.render(template_path, {'tasks': tasks})
-            self.response.out.write(output)
+            self.response.out.write(taskQuery(order_by=['complete_by']))
         elif command == 'sort-date':
-            query.order('date')
-            tasks = query.fetch(10)
-            for task in tasks:
-                task.id = task.key()
-            template_path = TEMPLATES_PATH + 'task-list.html'
-            output = template.render(template_path, {'tasks': tasks})
-            self.response.out.write(output)
+            self.response.out.write(taskQuery(order_by=['date']))
         elif command == 'sort-name':
-            query.order('name')
-            tasks = query.fetch(10)
-            for task in tasks:
-                task.id = task.key()
-            template_path = TEMPLATES_PATH + 'task-list.html'
-            output = template.render(template_path, {'tasks': tasks})
-            self.response.out.write(output)
+            self.response.out.write(taskQuery(order_by=['name']))
         elif command == 'submit-task':
             tasks = query.fetch(TASK_LIMIT + 1)
             if len(tasks) < TASK_LIMIT:
@@ -146,9 +153,16 @@ class AjaxHandler(webapp.RequestHandler):
                 template_path = TEMPLATES_PATH + 'single-task.html'
                 output = template.render(template_path, {'task': task})
                 self.response.out.write(output)
+        elif command == 'show-completed':
+            self.response.out.write(taskQuery(filters=[('completed',True)]))
+        elif command == 'show-not-completed':
+            self.response.out.write(taskQuery(filters=[('completed',False)]))
         else:
             self.error(303)
 
+class AjaxMethods(object):
+    pass
+            
 class SortHandler(webapp.RequestHandler):
 
     def get(self, command, ajax):
