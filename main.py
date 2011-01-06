@@ -35,8 +35,9 @@ def taskQuery(order_by = [], filters = [], limit = 10):
     '''
     Queries the Task model and returns a rendered task-list.
     
-    Takes a list of strings to order query and a list of tuples to
-    filter query.
+    Orders list by Task properties specified in order_by list.
+    Filters list by Task properties specified as tuples in filters
+    list. Each tuple will be a property, value pair (property, value).
     '''
     user = users.get_current_user()
     query = Task.all()
@@ -49,6 +50,9 @@ def taskQuery(order_by = [], filters = [], limit = 10):
     template_path = TEMPLATES_PATH + 'task-list.html'
     output = template.render(template_path, {'tasks': tasks})
     return output
+    
+def putTask():
+    pass
 #----------------------------------------------------------------
     
 class MainHandler(webapp.RequestHandler):
@@ -56,7 +60,9 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
         template_values = {}
+        
         if user:
+            # Gets task information for valid user
             template_values['nickname'] = user.nickname()
             template_values['logout_url'] = users.create_logout_url(MAIN_URL)
             query = Task.all()
@@ -74,6 +80,9 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(output)
         
     def post(self):
+        '''
+        Only called when ajax calls not working.
+        '''
         u = users.get_current_user()
         query = Task.all()
         query.filter("user =", u)
@@ -95,7 +104,11 @@ class MainHandler(webapp.RequestHandler):
         self.redirect(MAIN_URL)
 
 class TaskHandler(webapp.RequestHandler):
-
+    '''
+    Handles completing and deleting tasks when ajax calls
+    are not working.
+    '''
+    
     def get(self, command, id):
         user = users.get_current_user()
         if command == "complete":
@@ -123,14 +136,6 @@ class AjaxHandler(webapp.RequestHandler):
             task.completed = True
             task.complete_date = date.today()
             if task.user == user: task.put()
-        elif command == 'sort-priority':
-            pass
-        elif command == 'sort-completeby-date':
-            self.response.out.write(taskQuery(order_by=['complete_by']))
-        elif command == 'sort-date':
-            self.response.out.write(taskQuery(order_by=['date']))
-        elif command == 'sort-name':
-            self.response.out.write(taskQuery(order_by=['name']))
         elif command == 'submit-task':
             tasks = query.fetch(TASK_LIMIT + 1)
             if len(tasks) < TASK_LIMIT:
@@ -153,34 +158,33 @@ class AjaxHandler(webapp.RequestHandler):
                 template_path = TEMPLATES_PATH + 'single-task.html'
                 output = template.render(template_path, {'task': task})
                 self.response.out.write(output)
-        elif command == 'show-completed':
-            self.response.out.write(taskQuery(filters=[('completed',True)]))
-        elif command == 'show-not-completed':
-            self.response.out.write(taskQuery(filters=[('completed',False)]))
         else:
-            self.error(303)
+            # This dictionary is all that needs to be extended to add
+            # more task list sorting or filtering functionality.
+            command_params = {
+                'show-completed': {'filters': [('completed',True)]},
+                'show-not-completed': {'filters': [('completed',False)]},
+                'sort-completeby-date': {'order_by': ['complete_by']},
+                'sort-date': {'order_by': ['date']},
+                'sort-name': {'order_by': ['name']},
+            }
+            try:
+                params = command_params[command]
+            except KeyError:
+                self.error(303)
+            if 'filters' in params:
+                f = params['filters']
+            else:
+                f = []
+            if 'order_by' in params:
+                o = params['order_by']
+            else:
+                o = []
+            self.response.out.write(taskQuery(filters = f, order_by = o))
 
 class AjaxMethods(object):
     pass
-            
-class SortHandler(webapp.RequestHandler):
-
-    def get(self, command, ajax):
-        user = users.get_current_user()
-        if command == "":
-            pass
-        elif command == "":
-            pass
-        elif command == "":
-            pass
-            
-        if ajax == "ajax":
-            # Do ajax stuff here
-            pass
-        else:
-            # Do normal stuff
-            self.redirect(MAIN_URL)
-        
+                    
 def main():
     application = webapp.WSGIApplication([
         ('/taskit', MainHandler),
