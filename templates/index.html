@@ -53,20 +53,30 @@
 </fieldset>
 </div>
 
-<ul id="sort-links">
-<li>SORT BY:</li>
-<li><a href="" class="sort-name">name</a></li>
-<li><a href="" class="sort-date">date entered</a></li>
-<li><a href="" class="sort-completeby-date">complete by date</a></li>
+{% if nickname %}
+<ul id="sort-links" class="extra-links">
+    <li>SORT BY:</li>
+    <li><a href="" class="sort-name">name</a></li>
+    <li><a href="" class="sort-date">date entered</a></li>
+    <li><a href="" class="sort-completeby-date">complete by date</a></li>
+    <!--<li><a href="" class="sort-priority">priority</a></li>-->
 </ul>
 
+<ul id="show-links" class="extra-links">
+    <li>SHOW:</li>
+    <li><a href="" class="show-completed">completed</a></li>
+    <li><a href="" class="show-not-completed">not completed</a></li>
+    <!--<li><a href="" class="show-high-priority">high priority</a></li>
+    <li><a href="" class="show-med-priority">medium priority</a></li>
+    <li><a href="" class="show-low-priority">low priority</a></li>-->
+</ul>
 <div id="your-tasks">
-{% if nickname %}
     {% include "task-list.html" %}
-{% else %}
-    <p>Must be logged in to access tasks.</p>
-{% endif %}
 </div>
+{% else %}
+    <p id="notice">Must be logged in to access tasks.</p>
+{% endif %}
+
 
 </body>
 </html>

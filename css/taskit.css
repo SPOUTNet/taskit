@@ -31,6 +31,11 @@ body {
     font-size: 2em;
 }
 
+#notice {
+    margin-top: 10px;
+    font-size: 2em;
+}
+
 #add-task {
     margin-top: 10px;
 }
@@ -95,15 +100,14 @@ form {
     display: table;
 }
 
-#sort-links {
+.extra-links {
     padding-top:10px;
 }
 
-#sort-links li {
+.extra-links li {
     display: inline;
-    
 }
 
-#sort-links li a {
-    background-color: white;
+.extra-links li a {
+    background-color: white'
 }

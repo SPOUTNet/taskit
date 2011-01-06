@@ -1,17 +1,20 @@
-MAIN_URL = "http://localhost:8080/"
+MAIN_URL = "http://localhost:8080/taskit/";
+TASK_LIMIT = 10;
 
 $(document).ready(function(){
+    var num_tasks = $("#task-list li").length
     $("#task-input").focus();
+    $("#complete-by-input").datepicker();
     
     $("li").mouseover(function() {
-        $(this).css("background-color", "#EEE");
+        //$(this).css("background-color", "#EEE");
         theElement = this;
         class_id = $(this).attr("class");
     });
     $("li").mouseout(function() {
-        $(this).css("background-color", "white");
+        //$(this).css("background-color", "white");
     });
-    $("#complete-by-input").datepicker();
+    
     $("#advanced-task-link").click(function(event) {
         event.preventDefault();
         $("#advanced-task-form").slideToggle();
@@ -19,31 +22,33 @@ $(document).ready(function(){
     });
     
     $("#ajax-message p").ajaxSend(function (event, request, settings){
-        if (settings.url == MAIN_URL + "taskit/ajax/delete") {
+        if (settings.url == MAIN_URL + "ajax/delete") {
             $(this).text("Deleting task...");
         }
-        else if (settings.url == MAIN_URL + "taskit/ajax/complete") {
+        else if (settings.url == MAIN_URL + "ajax/complete") {
             $(this).text("Completing task...");
         }
-        else if (settings.url == MAIN_URL + "taskit/ajax/sort-name" ||
-                 settings.url == MAIN_URL + "taskit/ajax/sort-date") {
+        /*else if (settings.url == MAIN_URL + "ajax/sort-name" ||
+                 settings.url == MAIN_URL + "ajax/sort-date" ||
+                 settings.url == MAIN_URL + "ajax/sort-completeby-date") {
             $(this).text("Sorting tasks...");
             $("#your-tasks").slideUp(100);
-        }
+        }*/
         $(this).css("visibility", "visible");
     });
     
     $("#ajax-message p").ajaxComplete(function (event, request, settings){
-        if (settings.url == MAIN_URL + "taskit/ajax/sort-name" ||
-            settings.url == MAIN_URL + "taskit/ajax/sort-date"){
+        /*if (settings.url == MAIN_URL + "ajax/sort-name" ||
+            settings.url == MAIN_URL + "ajax/sort-date" ||
+            settings.url == MAIN_URL + "ajax/sort-completeby-date"){
             $("#your-tasks").slideDown('fast');
-        }
+        }*/
         $(this).css("visibility", "hidden");
         $("#task-input").focus();
     });
     
     // Ajax calls for delete and complete links
-    deleteComplete = $("#task-list li a").click(function(event) {
+    deleteComplete = function(event) {
         event.preventDefault();
         var command = $(this).text();
         var link = this;
@@ -57,11 +62,12 @@ $(document).ready(function(){
         if (confirmed){
         $.ajax({
             type: "POST",
-            url: MAIN_URL + "taskit/ajax/"+command,
+            url: MAIN_URL + "ajax/"+command,
             data: "id="+class_id+"&command="+command,
             success: function(msg) {
                 if (command == "delete") {
                     $("."+class_id+":first").slideUp();
+                    num_tasks = num_tasks - 1;
                 }
                 else if (command == "complete") {
                     $(link).hide();
@@ -70,37 +76,61 @@ $(document).ready(function(){
             }
         });
         }
-    });
+    };
+    $("#task-list li a").click(deleteComplete);
     
     //Ajax call for task sorting
-    $("#sort-links li a").click(function(event) {
+    $(".extra-links li a").click(function(event) {
         event.preventDefault();
         var command = $(this).attr("class");
         $.ajax({
             type: "POST",
-            url: MAIN_URL + "taskit/ajax/"+command,
+            url: MAIN_URL + "ajax/"+command,
             success: function(data) {
                 $("#your-tasks").html(data);
-            }
+            },
+            beforeSend: function() {
+                $("#ajax-message p").text("Sorting tasks...");
+                $("#your-tasks").slideUp(100);
+            },
+            complete: function() {
+                $("#your-tasks").slideDown('fast');
+                $("#task-list li a").click(deleteComplete); //Need to rebind function
+            },
+            
         });
     });
     
     // Ajax call for form submission
     $("#task-form").submit(function(event) {
+        if (num_tasks >= TASK_LIMIT) {
+            alert("You have reached the maximum number of tasks.");
+            return false;
+        }
         event.preventDefault();
         var jsonData = $("form#task-form").serialize();
         $.ajax({
             type: "POST",
-            url: MAIN_URL + "taskit/ajax/submit-task",
+            url: MAIN_URL + "ajax/submit-task",
             data: jsonData,
+            beforeSend: function() {
+                $("#ajax-message p").text("Submitting task...");
+            },
             error: function(data) {
                 alert("Unable to add task.");
             },
             success: function(data) {
-                $("#your-tasks").append(data)
+                num_tasks = num_tasks + 1;
+                $("#advanced-task-form").slideUp(200);
+                $("#task-list").append(data);
+                $("#task-list li:last").css("display", "none");
+                $("#task-list li:last").slideDown();
+                $("#task-list li:last a").click(deleteComplete);
+                $("#task-form").each (function() {
+                    this.reset();
+                });
             }
         });
     });
     
-    deleteComplete();
 });
