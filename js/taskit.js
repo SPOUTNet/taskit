@@ -1,4 +1,10 @@
-MAIN_URL = "http://localhost:8080/taskit/";
+DEBUG_MODE = false;
+if (DEBUG_MODE) {
+    MAIN_URL = "http://localhost:8080/taskit/";
+}
+else {
+    MAIN_URL = "http://ryan-fisher.appspot.com/taskit/";
+}
 TASK_LIMIT = 10;
 
 $(document).ready(function(){
@@ -95,7 +101,8 @@ $(document).ready(function(){
             },
             complete: function() {
                 $("#your-tasks").slideDown('fast');
-                $("#task-list li a").click(deleteComplete); //Need to rebind function
+                //Need to rebind function to list items
+                $("#task-list li a").click(deleteComplete);
             },
             
         });

@@ -125,7 +125,9 @@ class AjaxHandler(webapp.RequestHandler):
     
     def post(self, command):
         user = users.get_current_user()
-        if not user: return False
+        if not user:
+            self.redirect(MAIN_URL)
+            return False
         query = Task.all()
         query.filter('user =', user)
         if command == 'delete':
